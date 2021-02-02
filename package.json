@@ -16,12 +16,14 @@
         "url": "https://github.com"
     },
     "dependencies": {
+        "axios": "^0.21.1",
         "botbuilder": "~4.10.3",
         "botbuilder-dialogs": "^4.11.1",
         "dotenv": "^8.2.0",
         "firebase": "^8.2.5",
         "firebase-admin": "^9.4.2",
-        "restify": "~8.5.1"
+        "restify": "~8.5.1",
+        "xhr2": "^0.2.0"
     },
     "devDependencies": {
         "eslint": "^7.0.0",

@@ -1,7 +1,13 @@
 /* TODO: break this file into smaller segments */
 const firebase = require("firebase/app");
 const admin = require('firebase-admin');
+const path = require('path');
+const axios = require('axios');
+global.XMLHttpRequest = require("xhr2");
+
+
 require("firebase/firestore");
+require("firebase/storage");
 const firebaseConfig = {
   apiKey: "AIzaSyCU3XcDrZKAvF7CgkGc4gpul_Crzen5BqE",
   authDomain: "memsave-c0d28.firebaseapp.com",
@@ -14,6 +20,9 @@ const firebaseConfig = {
 // Initialize Firebasez
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+var storage = firebase.storage();
+var storageRef = storage.ref();
+
 //we try to obtain all the details of the user beforehand for once , so that reads are saved
 const retrieveDiaryNames = async (userName) => {
   console.log("retrieveDiaryNames function")
@@ -55,8 +64,38 @@ const reviewDiary = async (userName,diaryName) => {
 
 };
 
-const reviewAttachments = async () => {
-  // find blob storage for this work
+const uploadAttachment = async ( userName,result) => {
+  console.log("uploadAttachment function")
+
+  const name=result[0].name
+  const contentType=result[0].contentType
+  const contentUrl=result[0].contentUrl
+
+  const ref=storageRef.child(`users/${userName}/attachments/${name}`)
+
+  const response = await axios.get(contentUrl, { responseType: 'arraybuffer' });
+            // If user uploads JSON file, this prevents it from being written as "{"type":"Buffer","data":[123,13,10,32,32,34,108..."
+            if (response.headers['content-type'] === 'application/json') {
+                response.data = JSON.parse(response.data, (key, value) => {
+                    return value && value.type === 'Buffer' ? Buffer.from(value.data) : value;
+                });
+            }
+ 
+  console.log(response.data)
+  let bytes = new Uint8Array(response.data);
+  console.log("works")
+
+  // here we needs to send a loading message
+  ref.put(bytes).then((snapshot) => {
+    console.log('Uploaded a file!');
+  });
+  // var metadata = {
+  //   name,
+  //   contentType
+  // };
+  // ref.put(basic,'base64').then((snapshot) => {
+  //   console.log('Uploaded a base64 string!');
+  // });
 };
 const reviewChatDump = async () => {
   // just get array of chats
@@ -66,6 +105,7 @@ module.exports.makeDiary=makeDiary
 module.exports.addMessageToDiary=addMessageToDiary
 module.exports.retrieveDiaryNames=retrieveDiaryNames
 module.exports.reviewDiary=reviewDiary
+module.exports.uploadAttachment=uploadAttachment
 
 
 

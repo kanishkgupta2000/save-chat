@@ -30,7 +30,7 @@ class LoopInputDialog extends ComponentDialog {
 
         const list = stepContext.options.list;
         stepContext.values[this.data] = list;
-        const promptOptions = { prompt: '\>exit or keep typing your data!' };
+        const promptOptions = { prompt: '\\>exit or keep typing your data!' };
         return await stepContext.prompt(TEXT_PROMPT, promptOptions);
     }
 
@@ -50,6 +50,7 @@ class LoopInputDialog extends ComponentDialog {
                 diaryName,
                 list
             }
+            // add a message telling that you have now exited, type anything to get started again 
             return await stepContext.endDialog(options);
 
         }
