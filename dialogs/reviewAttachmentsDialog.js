@@ -3,7 +3,7 @@
 
 const {AttachmentLayoutTypes, CardFactory}=require('botbuilder');
 const {ComponentDialog,AttachmentPrompt,WaterfallDialog}=require('botbuilder-dialogs');
-const {uploadAttachment}=require("../firebase")
+const {uploadAttachment,retrieveAttachments}=require("../firebase")
 const REVIEW_ATTACHMENTS_DIALOG='REVIEW_ATTACHMENTS_DIALOG'
 const WATERFALL_DIALOG ='WATERFALL_DIALOG';
 const ATTACHMENT_PROMPT = 'ATTACHMENT_PROMPT';
@@ -24,7 +24,12 @@ class ReviewAttachmentsDialog extends ComponentDialog{
 
 
     async initialStep(stepContext){
+        //need to send a message activity here 
         console.log("reviewAttachmentsDialog.initialStep")
+
+        const attachmentList=await this.getAttachmentList(userName)
+        await stepContext.context.sendActivity('Here are the last 10 messages:');
+        await stepContext.context.sendActivity({attachments:attachmentList,attachmentLayout: AttachmentLayoutTypes.Carousel});
         const options={
             prompt:"upload attachments",
             retryPrompt:"try again"
@@ -39,6 +44,45 @@ class ReviewAttachmentsDialog extends ComponentDialog{
         return await stepContext.endDialog()
 
     }
+
+    async getAttachmentList(userName){
+        console.log("getAttachmentList")
+        const attachmentLinks=await retrieveAttachments(userName)
+        //NOT STOPPING HERE 
+        console.log("check after retrieval")
+        console.log(attachmentLinks)
+        // i now have array of objects containing 'time' and 'data'
+        const attachments=[]
+        attachmentLinks.forEach((url)=>{
+            attachments.push(this.createHeroCard(url))
+
+        })
+
+        // attachments.push(this.createHeroCard("ss"))
+        // attachments.push(this.createHeroCard("ss"))
+        return attachments
+    }
+
+    // createHeroCard(url) {
+    //     return CardFactory.heroCard('Image',CardFactory.images([url]));
+    // }
+
+    createHeroCard(url) {
+        return CardFactory.heroCard(
+            'Object',
+            CardFactory.images([url]),
+            CardFactory.actions([
+                {
+                    type: 'openUrl',
+                    title: 'Click to download',
+                    value: url
+                }
+            ])
+        );
+    }
 }
+
+
+
 module.exports.REVIEW_ATTACHMENTS_DIALOG=REVIEW_ATTACHMENTS_DIALOG
 module.exports.ReviewAttachmentsDialog=ReviewAttachmentsDialog
