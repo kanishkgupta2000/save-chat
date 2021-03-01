@@ -47,14 +47,14 @@ class ReviewAttachmentsDialog extends ComponentDialog{
 
     async getAttachmentList(userName){
         console.log("getAttachmentList")
-        const attachmentLinks=await retrieveAttachments(userName)
+        const attachmentData=await retrieveAttachments(userName)
         //NOT STOPPING HERE 
         console.log("check after retrieval")
-        console.log(attachmentLinks)
+        console.log(attachmentData)
         // i now have array of objects containing 'time' and 'data'
         const attachments=[]
-        attachmentLinks.forEach((url)=>{
-            attachments.push(this.createHeroCard(url))
+        attachmentData.forEach((item)=>{
+            attachments.push(this.createHeroCard(item))
 
         })
 
@@ -67,9 +67,9 @@ class ReviewAttachmentsDialog extends ComponentDialog{
     //     return CardFactory.heroCard('Image',CardFactory.images([url]));
     // }
 
-    createHeroCard(url) {
+    createHeroCard({url,fileName,fileType}) {
         return CardFactory.heroCard(
-            'Object',
+            fileName,
             CardFactory.images([url]),
             CardFactory.actions([
                 {

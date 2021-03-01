@@ -125,9 +125,15 @@ const retrieveAttachments = async (userName) => {
       console.log("pushing urls into array");
 
       const promises = arr.map(async (path) => {
+        const names=path.split("/")
+        const fileName=names[names.length-1]
+        const fileNameParts=fileName.split(".")
+        const fileType=fileNameParts[fileNameParts.length-1]
+        console.log("check after split")
+        console.log(names)
         await storageRef.child(path).getDownloadURL()
           .then(async (url) => {
-            await result.push(url)
+            await result.push({url,fileName,fileType})
           });
 
       })
@@ -146,9 +152,36 @@ const retrieveAttachments = async (userName) => {
     console.log(ans)
     return ans
 };
-const reviewChatDump = async () => {
+const retrieveChatDump = async (userName) => {
   // just get array of chats
+    // will give the content arrays
+    console.log("retrieve Chat Dump")
+    const docRef = db.doc(`users/${userName}/chatDump/chatDump`);
+    const doc = await docRef.get();
+    if(!doc.exists)
+    {
+      console.log("doc does not exist")
+      await docRef.set({data:[]})
+    }
+    const data = doc.data().data;
+   
+    return data;
+
 };
+const addMessageToChatDump=async(userName,userInput)=>{
+  console.log("add message to chat dump function ")
+  const docRef = db.doc(`users/${userName}/chatDump/chatDump`);
+  const doc = await docRef.get();
+  // if(!doc.exists)
+  // {
+  //   await docRef.set({ data: [] });
+  // }
+  const data = doc.data().data;
+  // console.log(data);
+  data.push({ time: Date.now(), data: userInput });
+  await docRef.set({ data }, { merge: true });
+
+}
 module.exports.isDiaryNameUnique = isDiaryNameUnique;
 module.exports.makeDiary = makeDiary;
 module.exports.addMessageToDiary = addMessageToDiary;
@@ -156,5 +189,6 @@ module.exports.retrieveDiaryNames = retrieveDiaryNames;
 module.exports.reviewDiary = reviewDiary;
 module.exports.uploadAttachment = uploadAttachment;
 module.exports.retrieveAttachments = retrieveAttachments;
-
+module.exports.retrieveChatDump=retrieveChatDump
+module.exports.addMessageToChatDump=addMessageToChatDump
 // export default firebase;

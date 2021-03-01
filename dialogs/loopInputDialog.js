@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 const { ComponentDialog,TextPrompt ,WaterfallDialog } = require('botbuilder-dialogs');
-const { addMessageToDiary }=require('../firebase')
+const { addMessageToDiary,addMessageToChatDump }=require('../firebase')
 
 
 const LOOP_INPUT_DIALOG='LOOP_INPUT_DIALOG'
@@ -38,7 +38,7 @@ class LoopInputDialog extends ComponentDialog {
     {
 
         console.log('loopInputDialog.loopStep');
-        const diaryName=stepContext.options.diaryName
+        const diaryName=stepContext.options.diaryName //probably make changes here ?
         const list = stepContext.values[this.data];
         const userInput = stepContext.result;
         const done = userInput === this.exitPhrase;
@@ -56,7 +56,13 @@ class LoopInputDialog extends ComponentDialog {
         }
         else{
             list.push(userInput)
-            addMessageToDiary(userName,diaryName,userInput)
+            if(diaryName==null)
+            {
+                addMessageToChatDump(userName,userInput)
+            }
+            else{
+                addMessageToDiary(userName,diaryName,userInput) //yaha pe changes
+            }
             //TO DO : -> should be saved as soon as text sent , to prevent loss of data in case of abruption
 
             const options={

@@ -3,22 +3,21 @@
 
 const { ComponentDialog, ChoicePrompt, WaterfallDialog } = require('botbuilder-dialogs');
 
-const { MakeDiaryDialog, MAKE_DIARY_DIALOG } = require('./MakeDiaryDialog');
+const { MakeDiaryDialog, MAKE_DIARY_DIALOG } = require('./makeDiaryDialog');
 const { ReviewDiariesDialog, REVIEW_DIARIES_DIALOG } = require('./reviewDiariesDialog');
-// const { ReviewChatDumpDialog, REVIEW_CHAT_DUMP_DIALOG } = require('./reviewChatDumpDialog');
+const { ReviewChatDumpDialog, REVIEW_CHAT_DUMP_DIALOG } = require('./reviewChatDumpDialog');
 const { ReviewAttachmentsDialog, REVIEW_ATTACHMENTS_DIALOG } = require('./reviewAttachmentsDialog');
 
 
 const TOP_LEVEL_DIALOG = 'TOP_LEVEL_DIALOG';
 const WATERFALL_DIALOG = 'WATERFALL_DIALOG';
-// const REVIEW_CHAT_DUMP_DIALOG='REVIEW_CHAT_DUMP_DIALOG'
 
 class TopLevelDialog extends ComponentDialog {
     constructor() {
         super(TOP_LEVEL_DIALOG);
         this.addDialog(new MakeDiaryDialog());
         this.addDialog(new ReviewDiariesDialog());
-        // this.addDialog(new ReviewChatDumpDialog());
+        this.addDialog(new ReviewChatDumpDialog());
         this.addDialog(new ReviewAttachmentsDialog());
         this.addDialog(new ChoicePrompt('cardPrompt'));
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
@@ -52,12 +51,11 @@ class TopLevelDialog extends ComponentDialog {
         switch(choice)
         {
             case 'Make a new diary':
-            
             return await stepContext.beginDialog(MAKE_DIARY_DIALOG,false)
             case 'Review Diaries':
             return await stepContext.beginDialog(REVIEW_DIARIES_DIALOG)
-            // case 'Review Chat Dump':
-            // return await stepContext.beginDialog(REVIEW_CHAT_DUMP_DIALOG)
+            case 'Review Chat Dump':
+            return await stepContext.beginDialog(REVIEW_CHAT_DUMP_DIALOG)
             case 'Review Attachments':
             return await stepContext.beginDialog(REVIEW_ATTACHMENTS_DIALOG)
             default:
@@ -68,7 +66,9 @@ class TopLevelDialog extends ComponentDialog {
        
     }
     async finalStep (stepContext){
-        return await stepContext.endDialog();
+        console.log('topLevelDialog.finalStep');
+
+        return await stepContext.replaceDialog(TOP_LEVEL_DIALOG);
     }
 
     getChoices() {
